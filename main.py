@@ -23,7 +23,7 @@ session = boto3.session.Session(
 )
 # https://stackoverflow.com/questions/36390815/how-to-enable-intellisense-for-python-in-visual-studio-code-with-anaconda3
 sesv2_client = session.client('sesv2')
-currencies = ['solana', 'ethereum', 'xrp', 'cardano', 'hedera']
+currencies = ['solana', 'ethereum', 'xrp', 'cardano', 'hedera', 'sui']
 COINMARKETCAP_API_QUOTE_URL = f"{COINMARKETCAP_BASE_URL}/v2/cryptocurrency/quotes/latest?slug={','.join(currencies)}"
 
 # https://docs.aws.amazon.com/ses/latest/dg/send-personalized-email-api.html
@@ -47,7 +47,23 @@ threshold_dict = {
             'name': 'Buy "it" now'
         }
     ],
-
+    'sui': [
+        {
+            'min': 3,
+            'max': 3.5,
+            'name': 'Dipping'
+        },
+        {
+            'min': 2.75,
+            'max': 3,
+            'name': 'Interesting'
+        },
+        {
+            'min': 2.5,
+            'max': 2.75,
+            'name': 'Buy "it" now'
+        }
+    ],
 }
 
 
