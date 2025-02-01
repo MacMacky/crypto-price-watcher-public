@@ -101,6 +101,29 @@ def request(url, headers):
     return result.json()
 
 
+def send_email_alert(client, slug, threshold):
+    client.send_email(
+        FromEmailAddress=FROM_EMAIL_ADDRESS,
+        FromEmailAddressIdentityArn=FROM_EMAIL_ADDRESS_ARN,
+        Destination={
+            'ToAddresses': [
+                TO_EMAIL_ADDRESS
+            ]
+        },
+        Content={
+            'Template': {
+                'TemplateName': EMAIL_TEMPLATE_NAME,
+                'TemplateData': json.dumps({
+                    'slug': slug,
+                    'threshold': threshold['name'],
+                    'min': str(threshold['min']),
+                    'max': str(threshold['max'])
+                })
+            }
+        }
+    )
+
+
 def handler(event, context):
     try:
         create_email_template_if_not_exists(sesv2_client)
@@ -118,31 +141,16 @@ def handler(event, context):
                 print('Error: no "USD" in quote')
                 continue
 
-            if slug in threshold_dict:
-                thresholds = threshold_dict[slug]
-                slug_quote_in_usd = quote['USD']['price']
-                for threshold in thresholds:
-                    if slug_quote_in_usd > threshold['min'] and slug_quote_in_usd <= threshold['max']:
-                        sesv2_client.send_email(
-                            FromEmailAddress=FROM_EMAIL_ADDRESS,
-                            FromEmailAddressIdentityArn=FROM_EMAIL_ADDRESS_ARN,
-                            Destination={
-                                'ToAddresses': [
-                                    TO_EMAIL_ADDRESS
-                                ]
-                            },
-                            Content={
-                                'Template': {
-                                    'TemplateName': EMAIL_TEMPLATE_NAME,
-                                    'TemplateData': json.dumps({
-                                        'slug': slug,
-                                        'threshold': threshold['name'],
-                                        'min': str(threshold['min']),
-                                        'max': str(threshold['max'])
-                                    })
-                                }
-                            }
-                        )
+            if slug not in threshold_dict:
+                print(f"slug '{slug}' not in threshold dictionary")
+                continue
+
+            thresholds = threshold_dict[slug]
+            slug_quote_in_usd = quote['USD']['price']
+            for threshold in thresholds:
+                if slug_quote_in_usd > threshold['min'] and slug_quote_in_usd <= threshold['max']:
+                    send_email_alert(sesv2_client, slug, threshold)
+
     except Exception as e:
         print(f"error {e}")
 
