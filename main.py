@@ -21,13 +21,10 @@ session = boto3.session.Session(
     region_name=REGION,
     profile_name='awsadmin'
 )
-
-
-currencies = ['solana', 'ethereum', 'xrp', 'cardano', 'hedera']
-
 # https://stackoverflow.com/questions/36390815/how-to-enable-intellisense-for-python-in-visual-studio-code-with-anaconda3
 sesv2_client = session.client('sesv2')
-
+currencies = ['solana', 'ethereum', 'xrp', 'cardano', 'hedera']
+COINMARKETCAP_API_QUOTE_URL = f"{COINMARKETCAP_BASE_URL}/v2/cryptocurrency/quotes/latest?slug={','.join(currencies)}"
 
 # https://docs.aws.amazon.com/ses/latest/dg/send-personalized-email-api.html
 # in USD
@@ -94,20 +91,23 @@ def create_email_template_if_not_exists(client):
         create_email_template(client)
 
 
+def request(url, headers):
+    result = requests.get(url=url, headers=headers)
+
+    if (result.status_code != 200):
+        print(f"Error: status code is {result.status_code} in {url}")
+        return
+
+    return result.json()
+
+
 def handler(event, context):
     try:
         create_email_template_if_not_exists(sesv2_client)
         headers = {'X-CMC_PRO_API_KEY': COINMARKETCAP_API_KEY}
-        result = requests.get(
-            f"{COINMARKETCAP_BASE_URL}/v2/cryptocurrency/quotes/latest?slug={','.join(currencies)}", headers=headers)
+        response = request(COINMARKETCAP_API_QUOTE_URL, headers)
 
-        if (result.status_code != 200):
-            print(f"Error: status code is {result.status_code}")
-            return
-
-        response = result.json()
-
-        if (response['data'] is None):
+        if (response is None or response.get('data') is None):
             print('Error: no response data')
             return
 
@@ -116,6 +116,7 @@ def handler(event, context):
 
             if 'USD' not in quote:
                 print('Error: no "USD" in quote')
+                continue
 
             if slug in threshold_dict:
                 thresholds = threshold_dict[slug]
