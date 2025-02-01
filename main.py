@@ -122,6 +122,8 @@ def send_email_alert(client, slug, threshold):
             }
         }
     )
+    print(
+        f"Successfully sent email for slug: {slug} with threshold name '{threshold['name']}'")
 
 
 def handler(event, context):
