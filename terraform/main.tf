@@ -4,8 +4,13 @@ terraform {
       source  = "hashicorp/aws"
       version = "~> 5.78.0"
     }
+  }
 
-
+  backend "s3" {
+    bucket         = "macky-tfstate-bucket"
+    key            = "crypto-price-alert-infra.tfstate"
+    dynamodb_table = "macky_tfstate"
+    region         = "us-east-1"
   }
 }
 provider "aws" {
@@ -27,7 +32,7 @@ resource "aws_ami" "main" {
 
 
 resource "aws_ebs_volume" "main_storage" {
-  availability_zone = "ap-east-1a"
+  availability_zone = "us-east-1a"
   size              = 8
 }
 
