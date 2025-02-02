@@ -29,6 +29,10 @@ jobs:
           terraform_version: "v1.10.5"
           cli_config_credentials_token: ${{ env.TF_API_TOKEN }}
 
+      - name: Init
+        id: init
+        run: terraform init
+
       - name: Validate
         id: validate
         run: terraform validate
