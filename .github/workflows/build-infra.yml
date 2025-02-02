@@ -26,9 +26,18 @@ jobs:
           terraform_version: "v1.10.5"
           cli_config_credentials_token: ${{ env.TF_API_TOKEN }}
 
-      - name: Validate terraform file
+      - name: Validate
         id: validate
         run: terraform validate
+
+      - name: Plan
+        id: plan
+        run: terraform plan -no-color
+        continue-on-error: true
+
+      - name: Apply
+        id: apply
+        run: terraform apply -auto-approve -input-false -no-color
 
       - name: Log
         run:  echo "Done"
