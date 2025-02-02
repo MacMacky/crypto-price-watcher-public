@@ -4,13 +4,39 @@ terraform {
       source  = "hashicorp/aws"
       version = "~> 5.78.0"
     }
+
+
+  }
+}
+provider "aws" {
+  region = "us-east-1"
+}
+
+
+resource "aws_ami" "main" {
+  name             = "test-ami-mark"
+  root_device_name = "/dev/sda1"
+  architecture     = "x86_64"
+
+  ebs_block_device {
+    device_name           = "/dev/sda1"
+    delete_on_termination = true
+    snapshot_id           = aws_ebs_snapshot.first_snapshot.id
   }
 }
 
-provider "aws" {
-  profile = "awsadmin"
-  region  = "us-east-1"
+
+resource "aws_ebs_volume" "main_storage" {
+  availability_zone = "ap-east-1a"
+  size              = 8
 }
+
+
+resource "aws_ebs_snapshot" "first_snapshot" {
+  volume_id    = aws_ebs_volume.main_storage.id
+  storage_tier = "standard"
+}
+
 
 
 # CloudWatch Event Rule (now "EventBridge") 
