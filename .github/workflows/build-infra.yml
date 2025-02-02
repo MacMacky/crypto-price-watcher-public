@@ -37,7 +37,7 @@ jobs:
 
       - name: Apply
         id: apply
-        run: terraform apply -auto-approve -input-false -no-color
+        run: terraform apply -auto-approve -input=false -no-color
 
       - name: Log
         run:  echo "Done"
