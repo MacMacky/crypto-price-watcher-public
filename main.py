@@ -15,14 +15,18 @@ TO_EMAIL_ADDRESS = os.getenv('TO_EMAIL_ADDRESS')
 TO_EMAIL_ADDRESS_ARN = os.getenv('TO_EMAIL_ADDRESS_ARN')
 FROM_EMAIL_ADDRESS = os.getenv('FROM_EMAIL_ADDRESS')
 FROM_EMAIL_ADDRESS_ARN = os.getenv('FROM_EMAIL_ADDRESS_ARN')
+RECEIVING_PHONE_NUMBER = os.getenv('RECEIVING_PHONE_NUMBER')
 REGION = os.getenv('REGION')
 
+
+IS_SMS_ENABLED = os.getenv('FROM_EMAIL_ADDRESS_ARN') == 'on'
 session = boto3.session.Session(
     region_name=REGION,
     profile_name='awsadmin'
 )
 # https://stackoverflow.com/questions/36390815/how-to-enable-intellisense-for-python-in-visual-studio-code-with-anaconda3
 sesv2_client = session.client('sesv2')
+sns_client = session.client('sns')
 currencies = ['solana', 'ethereum', 'xrp',
               'cardano', 'hedera', 'sui', 'jupiter-ag']
 COINMARKETCAP_API_QUOTE_URL = f"{COINMARKETCAP_BASE_URL}/v2/cryptocurrency/quotes/latest?slug={','.join(currencies)}"
@@ -160,6 +164,15 @@ def send_email_alert(client, slug, threshold):
         f"Successfully sent email for slug: {slug} with threshold name '{threshold['name']}'")
 
 
+def send_sms_alert(client, slug, threshold, quote_threshold):
+    if IS_SMS_ENABLED and RECEIVING_PHONE_NUMBER is not None:
+        client.publish(
+            PhoneNumber=RECEIVING_PHONE_NUMBER,
+            Message=f"Threshold: {threshold['name']} triggered, Quote Amount of {slug} is {quote_threshold} USD...",
+            Subject="Crypto Price Alert"
+        )
+
+
 def handler(event, context):
     try:
         create_email_template_if_not_exists(sesv2_client)
@@ -186,7 +199,7 @@ def handler(event, context):
             for threshold in thresholds:
                 if slug_quote_in_usd > threshold['min'] and slug_quote_in_usd <= threshold['max']:
                     send_email_alert(sesv2_client, slug, threshold)
-
+                    send_sms_alert(sns_client, slug, threshold)
     except Exception as e:
         print(f"error {e}")
 
