@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 import boto3.session
 import json
 import os
+from datetime import datetime
 
 load_dotenv()
 
@@ -16,6 +17,7 @@ TO_EMAIL_ADDRESS_ARN = os.getenv('TO_EMAIL_ADDRESS_ARN')
 FROM_EMAIL_ADDRESS = os.getenv('FROM_EMAIL_ADDRESS')
 FROM_EMAIL_ADDRESS_ARN = os.getenv('FROM_EMAIL_ADDRESS_ARN')
 RECEIVING_PHONE_NUMBER = os.getenv('RECEIVING_PHONE_NUMBER')
+TABLE_NAME = os.getenv('TABLE_NAME')
 REGION = os.getenv('REGION')
 
 
@@ -27,6 +29,7 @@ session = boto3.session.Session(
 # https://stackoverflow.com/questions/36390815/how-to-enable-intellisense-for-python-in-visual-studio-code-with-anaconda3
 sesv2_client = session.client('sesv2')
 sns_client = session.client('sns')
+dynamodb_client = session.client('dynamodb')
 currencies = ['solana', 'ethereum', 'xrp',
               'cardano', 'hedera', 'sui', 'jupiter-ag']
 COINMARKETCAP_API_QUOTE_URL = f"{COINMARKETCAP_BASE_URL}/v2/cryptocurrency/quotes/latest?slug={','.join(currencies)}"
@@ -173,6 +176,62 @@ def send_sms_alert(client, slug, threshold, quote_threshold):
         )
 
 
+def get_recent_price_item(client, crypto_name):
+    items = client.query(TableName=TABLE_NAME,
+                         # Can also add the sort or range key here
+                         # https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Query.KeyConditionExpressions.html
+                         KeyConditionExpression="#N = :value",
+                         ExpressionAttributeNames={
+                             # "name" is a reserved keyword in DynamoDB so we must use a placeholder
+                             # https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/ReservedWords.html
+                             # https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Expressions.ExpressionAttributeNames.html
+                             "#N": "name"
+                         },
+                         ExpressionAttributeValues={
+                             ':value': {
+                                 'S':  crypto_name
+                             }
+                         },
+                         # Sort by descending (defaults to True or in ascending)
+                         ScanIndexForward=False)
+    return items[0] if len(items) > 0 else None
+
+
+def calculate_percentage_diff(a, b):
+    return round((abs(a-b) / ((a+b)/2)) * 100, 2)
+
+
+def put_price_item(client, crypto_name, current):
+    recent = get_recent_price_item(client, crypto_name)
+
+    if recent is None:
+        put_item(client, crypto_name, current)
+
+    if current < recent['price'] and calculate_percentage_diff(current, recent['price']) > 10:
+        put_item(client, crypto_name, current)
+
+    return None
+
+
+def put_item(client, crypto_name, price):
+    return client.put_item(
+        TableName=TABLE_NAME,
+        Item={
+            'name': {
+                'S': crypto_name
+            },
+            'price': {
+                'S': price
+            },
+            'time_inserted': {
+                'S': datetime.now().isoformat()
+            }
+        },
+        ReturnConsumedCapacity="Total",
+        ReturnValues='ALL_NEW'
+    )
+
+
 def handler(event, context):
     try:
         create_email_template_if_not_exists(sesv2_client)
@@ -206,6 +265,3 @@ def handler(event, context):
     return {
         'value': event['test']
     }
-
-
-handler({'test': 'test', }, {})
