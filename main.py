@@ -132,7 +132,7 @@ def create_email_template_if_not_exists(client):
         create_email_template(client)
 
 
-def request(url, headers):
+def request(url, headers={'X-CMC_PRO_API_KEY': COINMARKETCAP_API_KEY}):
     result = requests.get(url=url, headers=headers)
 
     if (result.status_code != 200):
@@ -142,8 +142,8 @@ def request(url, headers):
     return result.json()
 
 
-def send_email_alert(client, slug, threshold):
-    client.send_email(
+def send_email_alert(ses_client, slug, threshold):
+    ses_client.send_email(
         FromEmailAddress=FROM_EMAIL_ADDRESS,
         FromEmailAddressIdentityArn=FROM_EMAIL_ADDRESS_ARN,
         Destination={
@@ -167,9 +167,9 @@ def send_email_alert(client, slug, threshold):
         f"Successfully sent email for slug: {slug} with threshold name '{threshold['name']}'")
 
 
-def send_sms_alert(client, slug, threshold, quote_threshold):
+def send_sms_alert(sns_client, slug, threshold, quote_threshold):
     if IS_SMS_ENABLED and RECEIVING_PHONE_NUMBER is not None:
-        client.publish(
+        sns_client.publish(
             PhoneNumber=RECEIVING_PHONE_NUMBER,
             Message=f"Threshold: {threshold['name']} triggered, Quote Amount of {slug} is {quote_threshold} USD...",
             Subject="Crypto Price Alert"
@@ -235,8 +235,7 @@ def put_item(db_client, crypto_name, price):
 def handler(event, context):
     try:
         create_email_template_if_not_exists(sesv2_client)
-        headers = {'X-CMC_PRO_API_KEY': COINMARKETCAP_API_KEY}
-        response = request(COINMARKETCAP_API_QUOTE_URL, headers)
+        response = request(COINMARKETCAP_API_QUOTE_URL)
 
         if (response is None or response.get('data') is None):
             print('Error: no response data')
