@@ -176,7 +176,7 @@ def send_sms_alert(client, slug, threshold, quote_threshold):
         )
 
 
-def get_recent_price_item(client, crypto_name):
+def get_previous_price_item(client, crypto_name):
     items = client.query(TableName=TABLE_NAME,
                          # Can also add the sort or range key here
                          # https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Query.KeyConditionExpressions.html
@@ -201,27 +201,27 @@ def calculate_percentage_diff(a, b):
     return round((abs(a-b) / ((a+b)/2)) * 100, 2)
 
 
-def put_price_item(client, crypto_name, current):
-    recent = get_recent_price_item(client, crypto_name)
+def put_price_item(db_client, crypto_name, current_price):
+    previous_price_item = get_previous_price_item(db_client, crypto_name)
 
-    if recent is None:
-        put_item(client, crypto_name, current)
+    if previous_price_item is None:
+        put_item(db_client, crypto_name, current_price)
 
-    if current < recent['price'] and calculate_percentage_diff(current, recent['price']) > 10:
-        put_item(client, crypto_name, current)
+    if current_price < previous_price_item['price'] and calculate_percentage_diff(current_price, previous_price_item['price']) > 10:
+        put_item(db_client, crypto_name, current_price)
 
     return None
 
 
-def put_item(client, crypto_name, price):
-    return client.put_item(
+def put_item(db_client, crypto_name, price):
+    return db_client.put_item(
         TableName=TABLE_NAME,
         Item={
             'name': {
                 'S': crypto_name
             },
             'price': {
-                'S': price
+                'S': str(price)
             },
             'time_inserted': {
                 'S': datetime.now().isoformat()
@@ -259,9 +259,9 @@ def handler(event, context):
                 if slug_quote_in_usd > threshold['min'] and slug_quote_in_usd <= threshold['max']:
                     send_email_alert(sesv2_client, slug, threshold)
                     send_sms_alert(sns_client, slug, threshold)
+                    put_price_item(dynamodb_client, slug, slug_quote_in_usd)
     except Exception as e:
         print(f"error {e}")
-
     return {
-        'value': event['test']
+        'data': 'success'
     }
