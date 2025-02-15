@@ -227,8 +227,8 @@ def put_item(db_client, crypto_name, price):
                 'S': datetime.now().isoformat()
             }
         },
-        ReturnConsumedCapacity="Total",
-        ReturnValues='ALL_NEW'
+        ReturnConsumedCapacity="TOTAL",
+        ReturnValues='NONE'
     )
 
 
