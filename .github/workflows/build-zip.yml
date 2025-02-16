@@ -28,7 +28,9 @@ jobs:
 
       - name: Create Deployment Package
         run: |
-            cd package
-            zip -r ../function.zip .
-            zip function.zip main.py
+          cd package
+          zip -r ../function.zip .
+          cd ..
+          zip function.zip main.py
+          echo "Done"
         
