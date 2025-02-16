@@ -14,13 +14,12 @@ jobs:
        - ubuntu-latest
     steps:
       - uses: montudor/action-zip@v1
+      - uses: actions/checkout@v4
+        name: Checkout Repo
       - uses: actions/setup-python@v5
         with:
             python-version: '3.11'
             cache: 'pip'
-      - uses: actions/checkout@v4
-        name: Checkout Repo
-
       - uses: hashicorp/setup-terraform@v3
         name: Setup Terraform
         with:
