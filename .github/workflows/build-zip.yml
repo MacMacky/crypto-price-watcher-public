@@ -1,0 +1,34 @@
+name: Build Zio File
+
+on:
+ push:
+   branches:
+     - main
+   paths:
+     - 'main.py'
+
+
+jobs:
+  build-and-remove:
+    runs-on: 'ubuntu-latest'
+
+    steps:
+      - uses: actions/checkout@v4
+        name: check out code
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+        run: |
+          mkdir package
+          pip install --target ./package -r requirements.txt
+          echo "pip packages installation done!!!"
+
+      - uses: montudor/action-zip@v1
+        name: zip file
+        run: |
+            cd package
+            zip -r ../function.zip .
+            zip function.zip main.py
+        
