@@ -12,10 +12,12 @@ jobs:
   build-and-deploy:
     runs-on: 
        - ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./terraform
     steps:
+      - uses: montudor/action-zip@v1
+      - uses: actions/setup-python@v5
+        with:
+            python-version: '3.11'
+            cache: 'pip'
       - uses: actions/checkout@v4
         name: Checkout Repo
 
@@ -25,13 +27,30 @@ jobs:
           terraform_version: "v1.10.5"
           cli_config_credentials_token: ${{ env.TF_API_TOKEN }}
 
+      - name: Install Pip Packages
+        run: |
+          mkdir package
+          pip install --target ./package -r requirements.txt
+          echo "pip packages installation done!!!"
+
+      - name: Create Deployment Package
+        run: |
+          cd package
+          zip -r ../function.zip .
+          cd ..
+          zip function.zip main.py
+          cp function.zip ./terraform/function.zip
+          echo "Done"
+
       - name: Init
         id: init
         run: terraform init
+        working-directory: terraform
 
       - name: Destroy
         id: apply
         run: terraform apply -destroy -auto-approve -input=false -no-color
+        working-directory: terraform
 
       - name: Log
         run:  echo "Done"
