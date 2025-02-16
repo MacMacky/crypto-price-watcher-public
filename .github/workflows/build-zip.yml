@@ -1,4 +1,4 @@
-name: Build Zio File
+name: Build Zip File
 
 on:
  push:
@@ -12,19 +12,21 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-        name: check out code
-
+      - uses: montudor/action-zip@v1
       - uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
-          cache: 'pip'
+            python-version: '3.11'
+            cache: 'pip'
+    
+        name: check out code
+
+      - name: Install Pip Packages
         run: |
           mkdir package
           pip install --target ./package -r requirements.txt
           echo "pip packages installation done!!!"
 
-      - uses: montudor/action-zip@v1
-        name: zip file
+      - name: Create Deployment Package
         run: |
             cd package
             zip -r ../function.zip .
