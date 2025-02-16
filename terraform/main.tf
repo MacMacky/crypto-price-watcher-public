@@ -39,8 +39,8 @@ resource "aws_lambda_function" "crypto_price_alert" {
   role             = aws_iam_role.lambda_execution_role.arn
   handler          = "api.handler"
   runtime          = "python3.11"
-  filename         = "${path.module}/function.zip"
-  source_code_hash = filebase64sha256("${path.module}/function.zip")
+  filename         = "function.zip"
+  source_code_hash = filebase64sha256("function.zip")
 }
 
 
