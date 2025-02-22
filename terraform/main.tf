@@ -149,11 +149,13 @@ data "aws_iam_policy_document" "lambda_permission_policy_doc" {
   }
 
   statement {
-    # For SES (Simple Email Service)
+    # For SES (Simple Email Service) + SNS
     effect = "Allow"
     actions = [
       "ses:SendEmail",
-      "ses:ListEmailIdentities"
+      "ses:ListEmailTemplates",
+      "ses:CreateEmailTemplate",
+      "sns:Publish"
     ]
     resources = ["*"]
   }
