@@ -24,7 +24,7 @@ IS_SMS_ENABLED = os.getenv('SMS_ENABLED', 'off') == 'on'
 
 session = boto3.session.Session(
     region_name=REGION,
-    profile_name='awsadmin'
+    # profile_name='awsadmin'
 )
 sesv2_client = session.client('sesv2')
 sns_client = session.client('sns')
