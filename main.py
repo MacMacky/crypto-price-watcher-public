@@ -11,15 +11,15 @@ load_dotenv()
 
 COINMARKETCAP_BASE_URL = 'https://pro-api.coinmarketcap.com'
 COINMARKETCAP_API_KEY = os.getenv('COINMARKETCAP_API_KEY')
-EMAIL_TEMPLATE_NAME = os.getenv('EMAIL_TEMPLATE_NAME')
+EMAIL_TEMPLATE_NAME = os.getenv('EMAIL_TEMPLATE_NAME', 'crypto-price-checker')
 TO_EMAIL_ADDRESS = os.getenv('TO_EMAIL_ADDRESS')
 TO_EMAIL_ADDRESS_ARN = os.getenv('TO_EMAIL_ADDRESS_ARN')
 FROM_EMAIL_ADDRESS = os.getenv('FROM_EMAIL_ADDRESS')
 FROM_EMAIL_ADDRESS_ARN = os.getenv('FROM_EMAIL_ADDRESS_ARN')
 RECEIVING_PHONE_NUMBER = os.getenv('RECEIVING_PHONE_NUMBER')
-TABLE_NAME = os.getenv('TABLE_NAME')
-REGION = os.getenv('REGION')
-IS_SMS_ENABLED = os.getenv('FROM_EMAIL_ADDRESS_ARN') == 'on'
+TABLE_NAME = os.getenv('TABLE_NAME', 'recent_crypto_prices')
+REGION = os.getenv('REGION', 'us-east-1')
+IS_SMS_ENABLED = os.getenv('SMS_ENABLED', 'off') == 'on'
 
 
 session = boto3.session.Session(
@@ -70,23 +70,23 @@ threshold_dict = {
             'name': 'Buy "it" now'
         }
     ],
-    'jupiter-ag': [
-        {
-            'min': 0.8,
-            'max': 1,
-            'name': "It's going downnnn"
-        },
-        {
-            'min': .75,
-            'max': 0.8,
-            'name': 'Interesting'
-        },
-        {
-            'min': .7,
-            'max': .75,
-            'name': 'Buy "it" now'
-        }
-    ],
+    # 'jupiter-ag': [
+    #     {
+    #         'min': 0.8,
+    #         'max': 1,
+    #         'name': "It's going downnnn"
+    #     },
+    #     {
+    #         'min': .75,
+    #         'max': 0.8,
+    #         'name': 'Interesting'
+    #     },
+    #     {
+    #         'min': .7,
+    #         'max': .75,
+    #         'name': 'Buy "it" now'
+    #     }
+    # ],
 }
 
 

@@ -17,6 +17,10 @@ provider "aws" {
   region = "us-east-1"
 }
 
+locals {
+  function_name = "crypto_price_alert"
+}
+
 # CloudWatch Event Rule
 resource "aws_cloudwatch_event_rule" "crypto_price_job" {
   name                = "crypto_price_job"
@@ -31,16 +35,56 @@ resource "aws_lambda_permission" "allow_cloudwatch_event_rule" {
   source_arn    = aws_cloudwatch_event_rule.crypto_price_job.arn
 }
 
+data "aws_ssm_parameter" "coinmarket_api_key" {
+  name            = "/${local.function_name}/COINMARKETCAP_API_KEY"
+  with_decryption = true
+}
+data "aws_ssm_parameter" "from_email_address" {
+  name            = "/${local.function_name}/FROM_EMAIL_ADDRESS"
+  with_decryption = true
+}
+
+data "aws_ssm_parameter" "from_email_address_arn" {
+  name            = "/${local.function_name}/FROM_EMAIL_ADDRESS_ARN"
+  with_decryption = true
+}
+
+data "aws_ssm_parameter" "to_email_address" {
+  name            = "/${local.function_name}/TO_EMAIL_ADDRESS"
+  with_decryption = true
+}
+
+data "aws_ssm_parameter" "to_email_address_arn" {
+  name            = "/${local.function_name}/TO_EMAIL_ADDRESS_ARN"
+  with_decryption = true
+}
+
+data "aws_ssm_parameter" "receiving_phone_number" {
+  name            = "/${local.function_name}/RECEIVING_PHONE_NUMBER"
+  with_decryption = true
+}
+
 
 # Lambda
 resource "aws_lambda_function" "crypto_price_alert" {
-  function_name    = "crypto_price_alert"
+  function_name    = local.function_name
   architectures    = ["x86_64"]
   role             = aws_iam_role.lambda_execution_role.arn
   handler          = "api.handler"
   runtime          = "python3.11"
   filename         = "function.zip"
   source_code_hash = filebase64sha256("function.zip")
+
+  environment {
+    variables = {
+      COINMARKETCAP_API_KEY  = data.aws_ssm_parameter.coinmarket_api_key
+      FROM_EMAIL_ADDRESS     = data.aws_ssm_parameter.from_email_address
+      FROM_EMAIL_ADDRESS_ARN = data.aws_ssm_parameter.from_email_address_arn
+      TO_EMAIL_ADDRESS       = data.aws_ssm_parameter.to_email_address
+      TO_EMAIL_ADDRESS_ARN   = data.aws_ssm_parameter.to_email_address_arn
+      RECEIVING_PHONE_NUMBER = data.aws_ssm_parameter.receiving_phone_number
+    }
+  }
 }
 
 
