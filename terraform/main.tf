@@ -35,6 +35,12 @@ resource "aws_lambda_permission" "allow_cloudwatch_event_rule" {
   source_arn    = aws_cloudwatch_event_rule.crypto_price_job.arn
 }
 
+# CloudWatch Event Target
+resource "aws_cloudwatch_event_target" "function_target" {
+  arn  = aws_lambda_function.crypto_price_alert.function_name
+  rule = aws_cloudwatch_event_rule.crypto_price_job.name
+}
+
 data "aws_ssm_parameter" "coinmarket_api_key" {
   name            = "/${local.function_name}/COINMARKETCAP_API_KEY"
   with_decryption = true
