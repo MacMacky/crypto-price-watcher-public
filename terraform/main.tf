@@ -37,7 +37,7 @@ resource "aws_lambda_permission" "allow_cloudwatch_event_rule" {
 
 # CloudWatch Event Target
 resource "aws_cloudwatch_event_target" "function_target" {
-  arn  = aws_lambda_function.crypto_price_alert.function_name
+  arn  = aws_lambda_function.crypto_price_alert.arn
   rule = aws_cloudwatch_event_rule.crypto_price_job.name
 }
 
