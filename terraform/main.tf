@@ -77,12 +77,12 @@ resource "aws_lambda_function" "crypto_price_alert" {
 
   environment {
     variables = {
-      COINMARKETCAP_API_KEY  = data.aws_ssm_parameter.coinmarket_api_key
-      FROM_EMAIL_ADDRESS     = data.aws_ssm_parameter.from_email_address
-      FROM_EMAIL_ADDRESS_ARN = data.aws_ssm_parameter.from_email_address_arn
-      TO_EMAIL_ADDRESS       = data.aws_ssm_parameter.to_email_address
-      TO_EMAIL_ADDRESS_ARN   = data.aws_ssm_parameter.to_email_address_arn
-      RECEIVING_PHONE_NUMBER = data.aws_ssm_parameter.receiving_phone_number
+      COINMARKETCAP_API_KEY  = data.aws_ssm_parameter.coinmarket_api_key.value
+      FROM_EMAIL_ADDRESS     = data.aws_ssm_parameter.from_email_address.value
+      FROM_EMAIL_ADDRESS_ARN = data.aws_ssm_parameter.from_email_address_arn.value
+      TO_EMAIL_ADDRESS       = data.aws_ssm_parameter.to_email_address.value
+      TO_EMAIL_ADDRESS_ARN   = data.aws_ssm_parameter.to_email_address_arn.value
+      RECEIVING_PHONE_NUMBER = data.aws_ssm_parameter.receiving_phone_number.value
     }
   }
 }
