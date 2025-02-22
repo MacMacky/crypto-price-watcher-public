@@ -19,14 +19,13 @@ FROM_EMAIL_ADDRESS_ARN = os.getenv('FROM_EMAIL_ADDRESS_ARN')
 RECEIVING_PHONE_NUMBER = os.getenv('RECEIVING_PHONE_NUMBER')
 TABLE_NAME = os.getenv('TABLE_NAME')
 REGION = os.getenv('REGION')
-
-
 IS_SMS_ENABLED = os.getenv('FROM_EMAIL_ADDRESS_ARN') == 'on'
+
+
 session = boto3.session.Session(
     region_name=REGION,
     profile_name='awsadmin'
 )
-# https://stackoverflow.com/questions/36390815/how-to-enable-intellisense-for-python-in-visual-studio-code-with-anaconda3
 sesv2_client = session.client('sesv2')
 sns_client = session.client('sns')
 dynamodb_client = session.client('dynamodb')
@@ -34,31 +33,30 @@ currencies = ['solana', 'ethereum', 'xrp',
               'cardano', 'hedera', 'sui', 'jupiter-ag']
 COINMARKETCAP_API_QUOTE_URL = f"{COINMARKETCAP_BASE_URL}/v2/cryptocurrency/quotes/latest?slug={','.join(currencies)}"
 
-# https://docs.aws.amazon.com/ses/latest/dg/send-personalized-email-api.html
 # in USD
 threshold_dict = {
     # can also be dictionary form
     'solana': [
         {
-            'min': 200,
-            'max': 270,
+            'min': 150,
+            'max': 170,
             'name': 'Dipping'
         },
         {
-            'min': 150,
-            'max': 200,
+            'min': 100,
+            'max': 130,
             'name': 'Interesting'
         },
         {
-            'min': 100,
-            'max': 150,
+            'min': 50,
+            'max': 100,
             'name': 'Buy "it" now'
         }
     ],
     'sui': [
         {
             'min': 3,
-            'max': 3.5,
+            'max': 3.2,
             'name': 'Dipping'
         },
         {
@@ -74,18 +72,18 @@ threshold_dict = {
     ],
     'jupiter-ag': [
         {
-            'min': 1,
-            'max': 1.5,
+            'min': 0.8,
+            'max': 1,
             'name': "It's going downnnn"
         },
         {
-            'min': .9,
-            'max': 1,
-            'name': 'getting interesting'
+            'min': .75,
+            'max': 0.8,
+            'name': 'Interesting'
         },
         {
-            'min': .70,
-            'max': .9,
+            'min': .7,
+            'max': .75,
             'name': 'Buy "it" now'
         }
     ],
