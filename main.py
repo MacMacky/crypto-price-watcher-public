@@ -36,6 +36,23 @@ COINMARKETCAP_API_QUOTE_URL = f"{COINMARKETCAP_BASE_URL}/v2/cryptocurrency/quote
 # in USD
 threshold_dict = {
     # can also be dictionary form
+    'ethereum': [
+        {
+            'min': 2600,
+            'max': 2650,
+            'name': 'Dipping'
+        },
+        {
+            'min': 2450,
+            'max': 2600,
+            'name': 'Interesting'
+        },
+        {
+            'min': 1500,
+            'max': 2450,
+            'name': 'Buy "it" now'
+        }
+    ],
     'solana': [
         {
             'min': 150,
@@ -257,6 +274,7 @@ def handler(event, context):
                     send_email_alert(sesv2_client, slug, threshold)
                     send_sms_alert(sns_client, slug, threshold)
                     put_price_item(dynamodb_client, slug, slug_quote_in_usd)
+                    continue
     except Exception as e:
         print(f"error {e}")
     return {
