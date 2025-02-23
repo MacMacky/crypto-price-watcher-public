@@ -218,7 +218,7 @@ def calculate_percentage_diff(a, b):
 
 def put_price_item(db_client, crypto_name, current_price):
     previous_price_item = get_previous_price_item(db_client, crypto_name)
-
+    print(f"Previous price item: {previous_price_item}")
     if previous_price_item is None:
         put_item(db_client, crypto_name, current_price)
 
@@ -269,6 +269,7 @@ def handler(event, context):
 
             thresholds = threshold_dict[slug]
             slug_quote_in_usd = quote['USD']['price']
+            print(f"Running comparison on slug: {slug}")
             for threshold in thresholds:
                 if slug_quote_in_usd > threshold['min'] and slug_quote_in_usd <= threshold['max']:
                     send_email_alert(sesv2_client, slug, threshold)
