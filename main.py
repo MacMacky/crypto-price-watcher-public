@@ -70,23 +70,23 @@ threshold_dict = {
             'name': 'Buy "it" now'
         }
     ],
-    # 'jupiter-ag': [
-    #     {
-    #         'min': 0.8,
-    #         'max': 1,
-    #         'name': "It's going downnnn"
-    #     },
-    #     {
-    #         'min': .75,
-    #         'max': 0.8,
-    #         'name': 'Interesting'
-    #     },
-    #     {
-    #         'min': .7,
-    #         'max': .75,
-    #         'name': 'Buy "it" now'
-    #     }
-    # ],
+    'jupiter-ag': [
+        {
+            'min': 0.6,
+            'max': 0.7,
+            'name': "It's going downnnn"
+        },
+        {
+            'min': .55,
+            'max': 0.6,
+            'name': 'Interesting'
+        },
+        {
+            'min': .50,
+            'max': .55,
+            'name': 'Buy "it" now'
+        }
+    ],
 }
 
 
