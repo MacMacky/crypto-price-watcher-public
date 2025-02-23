@@ -216,16 +216,23 @@ def calculate_percentage_diff(a, b):
     return round((abs(a-b) / ((a+b)/2)) * 100, 2)
 
 
-def put_price_item(db_client, crypto_name, current_price):
+def put_price_item_and_send_alert(db_client, crypto_name, current_price, threshold):
     previous_price_item = get_previous_price_item(db_client, crypto_name)
     print(f"Previous price item: {previous_price_item}")
     if previous_price_item is None:
         put_item(db_client, crypto_name, current_price)
+        send_alerts(crypto_name, threshold)
 
     if current_price < previous_price_item['price'] and calculate_percentage_diff(current_price, previous_price_item['price']) > 10:
         put_item(db_client, crypto_name, current_price)
+        send_alerts(crypto_name, threshold)
 
-    return None
+    return False
+
+
+def send_alerts(slug, threshold):
+    send_email_alert(sesv2_client, slug, threshold)
+    send_sms_alert(sns_client, slug, threshold)
 
 
 def put_item(db_client, crypto_name, price):
@@ -272,9 +279,8 @@ def handler(event, context):
             print(f"Running comparison on slug: {slug}")
             for threshold in thresholds:
                 if slug_quote_in_usd > threshold['min'] and slug_quote_in_usd <= threshold['max']:
-                    send_email_alert(sesv2_client, slug, threshold)
-                    send_sms_alert(sns_client, slug, threshold)
-                    put_price_item(dynamodb_client, slug, slug_quote_in_usd)
+                    put_price_item_and_send_alert(
+                        dynamodb_client, slug, slug_quote_in_usd, threshold)
                     continue
     except Exception as e:
         print(f"error {e}")
