@@ -192,6 +192,7 @@ def send_sms_alert(sns_client, slug, threshold, quote_threshold):
 
 
 def get_previous_price_item(client, crypto_name):
+    print(f"Getting previous item for slug: {crypto_name}")
     items = client.query(TableName=TABLE_NAME,
                          # Can also add the sort or range key here
                          # https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Query.KeyConditionExpressions.html
@@ -209,6 +210,7 @@ def get_previous_price_item(client, crypto_name):
                          },
                          # Sort by descending (defaults to True or in ascending)
                          ScanIndexForward=False)
+    print(f"Items found: {json.dumps(items)}")
     return items[0] if len(items) > 0 else None
 
 
