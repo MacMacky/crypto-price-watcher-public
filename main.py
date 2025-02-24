@@ -278,7 +278,10 @@ def handler(event, context):
             slug_quote_in_usd = quote['USD']['price']
             print(f"Running comparison on slug: {slug}")
             for threshold in thresholds:
+                print(f"Threshold: {json.dumps(threshold)}")
                 if slug_quote_in_usd > threshold['min'] and slug_quote_in_usd <= threshold['max']:
+                    print(
+                        f"Running email logic for quote: ${slug_quote_in_usd}")
                     put_price_item_and_send_alert(
                         dynamodb_client, slug, slug_quote_in_usd, threshold)
                     continue
