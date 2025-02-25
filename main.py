@@ -225,7 +225,7 @@ def put_price_item_and_send_alert(db_client, crypto_name, current_price, thresho
         put_item(db_client, crypto_name, current_price)
         send_alerts(crypto_name, threshold)
 
-    if current_price < previous_price_item['price'] and calculate_percentage_diff(current_price, previous_price_item['price']) > 10:
+    if current_price < float(previous_price_item['price']['S']) and calculate_percentage_diff(current_price, float(previous_price_item['price']['S'])) > 10:
         put_item(db_client, crypto_name, current_price)
         send_alerts(crypto_name, threshold)
 
