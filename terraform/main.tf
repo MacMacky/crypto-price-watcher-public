@@ -153,6 +153,7 @@ data "aws_iam_policy_document" "lambda_permission_policy_doc" {
     effect = "Allow"
     actions = [
       "ses:SendEmail",
+      "ses:SendTemplatedEmail",
       "ses:ListEmailTemplates",
       "ses:CreateEmailTemplate",
       "sns:Publish"
