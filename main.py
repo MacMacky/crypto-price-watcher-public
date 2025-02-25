@@ -193,25 +193,25 @@ def send_sms_alert(sns_client, slug, threshold, quote_threshold):
 
 def get_previous_price_item(client, crypto_name):
     print(f"Getting previous item for slug: {crypto_name}")
-    items = client.query(TableName=TABLE_NAME,
-                         # Can also add the sort or range key here
-                         # https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Query.KeyConditionExpressions.html
-                         KeyConditionExpression="#N = :value",
-                         ExpressionAttributeNames={
-                             # "name" is a reserved keyword in DynamoDB so we must use a placeholder
-                             # https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/ReservedWords.html
-                             # https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Expressions.ExpressionAttributeNames.html
-                             "#N": "name"
-                         },
-                         ExpressionAttributeValues={
-                             ':value': {
-                                 'S':  crypto_name
-                             }
-                         },
-                         # Sort by descending (defaults to True or in ascending)
-                         ScanIndexForward=False)
-    print(f"Items found: {json.dumps(items)}")
-    return items[0] if len(items) > 0 else None
+    response = client.query(TableName=TABLE_NAME,
+                            # Can also add the sort or range key here
+                            # https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Query.KeyConditionExpressions.html
+                            KeyConditionExpression="#N = :value",
+                            ExpressionAttributeNames={
+                                # "name" is a reserved keyword in DynamoDB so we must use a placeholder
+                                # https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/ReservedWords.html
+                                # https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Expressions.ExpressionAttributeNames.html
+                                "#N": "name"
+                            },
+                            ExpressionAttributeValues={
+                                ':value': {
+                                    'S':  crypto_name
+                                }
+                            },
+                            # Sort by descending (defaults to True or in ascending)
+                            ScanIndexForward=False)
+    print(f"Response: {json.dumps(response)}")
+    return response['Items'][0] if len(response['Items']) > 0 else None
 
 
 def calculate_percentage_diff(a, b):
