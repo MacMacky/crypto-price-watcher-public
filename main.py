@@ -247,7 +247,7 @@ def put_item(db_client, crypto_name, price):
             'price': {
                 'S': str(price)
             },
-            'time_inserted': {
+            'inserted_at': {
                 'S': datetime.now().isoformat()
             }
         },
