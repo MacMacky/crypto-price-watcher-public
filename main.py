@@ -55,13 +55,13 @@ threshold_dict = {
     ],
     'solana': [
         {
-            'min': 150,
+            'min': 140,
             'max': 170,
             'name': 'Dipping'
         },
         {
             'min': 100,
-            'max': 130,
+            'max': 140,
             'name': 'Interesting'
         },
         {
@@ -184,6 +184,7 @@ def send_email_alert(ses_client, slug, threshold):
 
 def send_sms_alert(sns_client, slug, threshold, quote_threshold):
     if IS_SMS_ENABLED and RECEIVING_PHONE_NUMBER is not None:
+        print(f'Sending phone message to {RECEIVING_PHONE_NUMBER}')
         sns_client.publish(
             PhoneNumber=RECEIVING_PHONE_NUMBER,
             Message=f"Threshold: {threshold['name']} triggered, Quote Amount of {slug} is {quote_threshold} USD...",
