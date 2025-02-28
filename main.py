@@ -65,8 +65,13 @@ threshold_dict = {
             'name': 'Interesting'
         },
         {
-            'min': 50,
+            'min': 85,
             'max': 100,
+            'name': 'Hope you saved some money, because its getting good $$$'
+        },
+        {
+            'min': 45,
+            'max': 85,
             'name': 'Buy "it" now'
         }
     ],
@@ -99,10 +104,10 @@ threshold_dict = {
             'name': 'Interesting'
         },
         {
-            'min': .50,
+            'min': .45,
             'max': .55,
             'name': 'Buy "it" now'
-        }
+        },
     ],
 }
 
