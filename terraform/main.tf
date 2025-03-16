@@ -166,8 +166,8 @@ data "aws_iam_policy_document" "lambda_permission_policy_doc" {
 resource "aws_dynamodb_table" "recent_crypto_prices" {
   name           = "recent_crypto_prices"
   billing_mode   = "PROVISIONED"
-  read_capacity  = 25
-  write_capacity = 25
+  read_capacity  = 10
+  write_capacity = 10
   hash_key       = "name"
   range_key      = "inserted_at"
 
